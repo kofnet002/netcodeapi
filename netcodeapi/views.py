@@ -8,6 +8,11 @@ from .models import Code, User
 
 # Create your views here.
 class RegisterView(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
