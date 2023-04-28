@@ -7,6 +7,11 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["username", "password"]
+        extra_kwargs = {
+            "password":{
+                "write_only": True
+            }
+        }
     
     # OVERWRITE CREATE METHOD TO HASH USER PASSWORD
     def create(self, validated_data):

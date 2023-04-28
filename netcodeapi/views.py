@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.exceptions import AuthenticationFailed
 from .serializers import CodeSerializer, UserSerializer
 from .models import Code, User
 # from django.contrib.auth.models import User
@@ -19,6 +20,21 @@ class RegisterView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+class LoginView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        user = User.objects.filter(username=username).first()
+
+        if user is None:
+            raise AuthenticationFailed("User not found")
+        
+        if not user.check_password(password):
+            raise AuthenticationFailed("Password is incorrect")
+        
+        return Response({"message": "user verified"})
 
 class AllCodes(APIView):
     def get(self, request):
