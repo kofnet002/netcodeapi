@@ -8,6 +8,16 @@ from .models import Code, User
 # from django.contrib.auth.models import User
 
 # Create your views here.
+class EndPoints(APIView):
+    def get(self, request):
+        endpoints = [
+            "register/",
+            "login/",
+            "codes/",
+            "codes/<id>/",
+        ]
+        return Response(endpoints)
+
 class RegisterView(APIView):
     def get(self, request):
         users = User.objects.all()
@@ -36,8 +46,9 @@ class LoginView(APIView):
         
         return Response({"message": "user verified"})
 
-class AllCodes(APIView):
+class GetCodes(APIView):
     def get(self, request):
+        # user = request.user
         codes = Code.objects.all()
         serializer = CodeSerializer(codes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

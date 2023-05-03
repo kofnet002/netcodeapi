@@ -16,6 +16,7 @@ class User(AbstractUser):
 
 
 class Code(models.Model):
+    # user = models.ForeignKey(User, on_delete=models.CASCADE)
     topic = models.CharField(max_length=200)
     code = models.TextField()
     url = models.URLField(max_length=200, blank=True, null=True)
