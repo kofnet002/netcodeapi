@@ -7,4 +7,4 @@ urlpatterns = [
     path('login/', LoginView.as_view()),
     path('codes/', GetCodes.as_view()),
     path('codes/<str:id>/', CodeDetail.as_view()),
-]
+] 

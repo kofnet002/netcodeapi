@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from .serializers import CodeSerializer, UserSerializer
 from .models import Code, User
+from django.db.models import Q
 # from django.contrib.auth.models import User
 
 # Create your views here.
@@ -50,6 +51,16 @@ class GetCodes(APIView):
     def get(self, request):
         # user = request.user
         codes = Code.objects.all()
+        search_param = request.query_params.get('search')
+
+        if search_param:
+            codes = codes.filter(
+                Q(topic__icontains=search_param) | 
+                Q(code__icontains=search_param) |
+                Q(url__icontains=search_param) |
+                Q(author__icontains=search_param),
+            )
+
         serializer = CodeSerializer(codes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -78,7 +89,7 @@ class CodeDetail(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, id):
         code = self.get_object(id)
