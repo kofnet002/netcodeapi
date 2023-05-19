@@ -57,8 +57,8 @@ class GetCodes(APIView):
     permission_classes = [IsAuthenticated,]
 
     def get(self, request):
-        # user = request.user
-        codes = Code.objects.all()
+        user = request.user
+        codes = user.code_set.all()
         search_param = request.query_params.get('search')
 
         if search_param:
