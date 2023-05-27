@@ -108,3 +108,7 @@ venv.bak/
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+.vscode
+node_modules
+package-lock.json
+package.json

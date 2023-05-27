@@ -21,6 +21,8 @@ class Code(models.Model):
     code = models.TextField()
     url = models.URLField(max_length=200, blank=True, null=True)
     author = models.CharField(max_length=200, blank=True, null=True)
+    picture = models.ImageField(
+        upload_to='images', blank=True, null=True, default='netcode.jpg')
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
 

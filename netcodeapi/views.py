@@ -7,9 +7,30 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import CodeSerializer, UserSerializer
 from .models import Code, User
 from django.db.models import Q
+
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 # from django.contrib.auth.models import User
 
 # Create your views here.
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['id'] = user.id
+        token['username'] = user.username
+        # ...
+
+        return token
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
 
 
 class EndPoints(APIView):
@@ -37,22 +58,6 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
 
-class LoginView(APIView):
-    def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-
-        user = User.objects.filter(username=username).first()
-
-        if user is None:
-            raise AuthenticationFailed("User not found")
-
-        if not user.check_password(password):
-            raise AuthenticationFailed("Password is incorrect")
-
-        return Response({"message": "user verified"})
-
-
 class GetCodes(APIView):
     permission_classes = [IsAuthenticated,]
 
@@ -73,14 +78,20 @@ class GetCodes(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        data = CodeSerializer(data=request.data)
-        if data.is_valid():
+        data = {
+            'note': request.data,
+            'image': request.FILES.get('code_image'),
+        }
+        _data = CodeSerializer(data=data),
+        if _data.is_valid():
             data.save()
             return Response(data.data, status=status.HTTP_201_CREATED)
         return Response(data.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CodeDetail(APIView):
+    permission_classes = [IsAuthenticated,]
+
     def get_object(self, id):
         try:
             return Code.objects.get(id=id)
